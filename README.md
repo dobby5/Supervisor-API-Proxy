@@ -30,16 +30,15 @@ The Supervisor API Proxy add-on provides a REST API interface to access Home Ass
 
 ## Features
 
-- 🔌 **Full Supervisor API Proxy** - Access all Supervisor endpoints
-- 📱 **Mobile App Support** - Optimized for Android app integration  
-- 🔒 **Secure Access** - Token-based authentication with CORS support
-- 🚀 **RESTful API** - Clean REST endpoints with /api/v1/ prefix
-- 📊 **Real-time Logs** - Streaming log support with range headers
-- 🔄 **Job Management** - Monitor and control Supervisor jobs
-- 💾 **Backup Management** - Create, restore and manage backups
-- 🏠 **Add-on Control** - Install, configure and manage add-ons
-- 📈 **System Monitoring** - Access system stats and information
-- ⚡ **Health Checks** - Built-in health monitoring endpoints
+- **Add-on Management**: Install, start, stop, restart, and configure add-ons
+- **Store Access**: Browse and install add-ons from the Home Assistant Add-on Store
+- **Backup Operations**: Create, restore, and manage full and partial backups
+- **System Information**: Get detailed info about supervisor, core, OS, and hardware
+- **System Control**: Restart services, reboot, and shutdown the host
+- **Update Management**: Check for and apply updates to supervisor, core, and OS
+- **Statistics**: Monitor resource usage and performance metrics
+- **Logging**: Access supervisor and core logs with streaming support
+- **Health Monitoring**: Built-in health checks and endpoint discovery
 
 ## Installation
 
@@ -84,27 +83,73 @@ http://your-ha-ip:8099/api/v1/
 ### Authentication
 All requests require the `Authorization: Bearer <supervisor_token>` header.
 
-### Available Endpoints
+## API Endpoints
 
-| Category | Endpoint | Methods | Description |
-|----------|----------|---------|-------------|
-| **Health** | `/health` | GET | Health check |
-| **Discovery** | `/discovery` | GET | List available endpoints |
-| **Add-ons** | `/addons` | GET | List all add-ons |
-| **Add-ons** | `/addons/{slug}` | GET, POST | Get/update add-on |
-| **Add-ons** | `/addons/{slug}/install` | POST | Install add-on |
-| **Add-ons** | `/addons/{slug}/uninstall` | POST | Uninstall add-on |
-| **Add-ons** | `/addons/{slug}/start` | POST | Start add-on |
-| **Add-ons** | `/addons/{slug}/stop` | POST | Stop add-on |
-| **Add-ons** | `/addons/{slug}/logs` | GET | Get add-on logs |
-| **Backups** | `/backups` | GET, POST | List/create backups |
-| **Backups** | `/backups/{slug}` | GET, DELETE | Get/delete backup |
-| **Backups** | `/backups/{slug}/restore/full` | POST | Full restore |
-| **Backups** | `/backups/{slug}/restore/partial` | POST | Partial restore |
-| **System** | `/supervisor/info` | GET | Supervisor information |
-| **System** | `/core/info` | GET | Core information |
-| **System** | `/host/info` | GET | Host information |
-| **System** | `/os/info` | GET | OS information |
+All endpoints are prefixed with `/api/v1`:
+
+### Add-ons
+- `GET /addons` - List all installed add-ons
+- `POST /addons/reload` - Reload add-on information
+- `GET /addons/{addon}/info` - Get add-on details
+- `GET /addons/{addon}/logs` - Get add-on logs
+- `GET /addons/{addon}/stats` - Get add-on statistics
+- `POST /addons/{addon}/start` - Start an add-on
+- `POST /addons/{addon}/stop` - Stop an add-on
+- `POST /addons/{addon}/restart` - Restart an add-on
+- `POST /addons/{addon}/uninstall` - Uninstall an add-on
+- `POST /addons/{addon}/options` - Configure add-on options
+
+### Store
+- `GET /store` - Get store information
+- `GET /store/addons` - List all store add-ons
+- `GET /store/addons/{addon}` - Get store add-on details
+- `POST /store/addons/{addon}/install` - Install add-on from store
+- `POST /store/addons/{addon}/update` - Update an add-on
+- `GET /store/repositories` - List repositories
+- `POST /store/repositories` - Add repository
+
+### Backups
+- `GET /backups` - List all backups
+- `GET /backups/info` - Get backup manager info
+- `POST /backups/new/full` - Create full backup
+- `POST /backups/new/partial` - Create partial backup
+- `GET /backups/{backup}/info` - Get backup details
+- `DELETE /backups/{backup}` - Delete backup
+- `POST /backups/{backup}/restore/full` - Restore full backup
+- `POST /backups/{backup}/restore/partial` - Restore partial backup
+
+### System Information
+- `GET /info` - General system information
+- `GET /supervisor/info` - Supervisor information
+- `GET /core/info` - Home Assistant Core information
+- `GET /os/info` - OS information
+- `GET /host/info` - Host information
+- `GET /hardware/info` - Hardware information
+- `GET /network/info` - Network information
+
+### System Control
+- `POST /supervisor/restart` - Restart supervisor
+- `POST /core/restart` - Restart Home Assistant Core
+- `POST /host/reboot` - Reboot host
+- `POST /host/shutdown` - Shutdown host
+
+### Updates
+- `GET /available_updates` - List available updates
+- `POST /supervisor/update` - Update supervisor
+- `POST /core/update` - Update Home Assistant Core
+- `POST /os/update` - Update Home Assistant OS
+
+### Statistics
+- `GET /supervisor/stats` - Supervisor statistics
+- `GET /core/stats` - Core statistics
+
+### Logs
+- `GET /supervisor/logs` - Get supervisor logs
+- `GET /core/logs` - Get core logs
+
+### Utility
+- `GET /health` - Health check endpoint
+- `GET /endpoints` - List all available endpoints
 
 ### Example API Calls
 
@@ -128,10 +173,6 @@ curl -X POST \
 curl -H "Authorization: Bearer YOUR_TOKEN" \
      http://your-ha-ip:8099/api/v1/addons/my-addon/logs?follow=true
 ```
-
-## Android Integration
-
-This add-on is designed for Android app integration. See the [Android Client Documentation](docs/android-client.md) for Kotlin implementation examples.
 
 ## Security Considerations
 
@@ -197,13 +238,3 @@ docker run -p 8099:8099 -e SUPERVISOR_TOKEN=your_token supervisor-proxy
 ## License
 
 MIT License - see [LICENSE](LICENSE) file for details.
-
-## Changelog
-
-### v1.0.0
-- Initial release
-- Full Supervisor API proxy functionality
-- Android client support
-- CORS configuration
-- Health monitoring
-- Streaming logs support
