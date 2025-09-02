@@ -1,8 +1,8 @@
-ARG BUILD_FROM
-FROM ${BUILD_FROM}
+# Use simple Alpine Linux instead of HA base image to avoid s6-overlay issues
+FROM alpine:3.18
 
-# Install Python
-RUN apk add --no-cache python3 py3-pip
+# Install Python and dependencies
+RUN apk add --no-cache python3 py3-pip bash
 
 # Set working directory  
 WORKDIR /app
@@ -11,16 +11,16 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip3 install --no-cache-dir -r requirements.txt
 
-# Copy apps (both versions for testing)
+# Copy apps
 COPY app.py .
 COPY app-simple.py .
 
-# Copy and set run script
-COPY run-simple.sh /
-RUN chmod +x /run-simple.sh
+# Copy simple startup script (no bashio)
+COPY run-direct.sh /
+RUN chmod +x /run-direct.sh
 
 # Expose port
 EXPOSE 8080
 
-# Start with simple version for testing
-CMD ["/run-simple.sh"]
+# Direct startup without s6-overlay
+CMD ["/run-direct.sh"]
