@@ -1,8 +1,0 @@
-# Using Alpine Linux instead of HA base images to avoid s6-overlay issues
-# This disables build_from and uses the FROM in Dockerfile directly
-labels:
-  org.opencontainers.image.title: "Supervisor API Proxy"
-  org.opencontainers.image.description: "RESTful API proxy for Home Assistant Supervisor"
-  org.opencontainers.image.source: "https://github.com/dobby5/Supervisor-API-Proxy"
-  org.opencontainers.image.authors: "dobby5"
-  org.opencontainers.image.licenses: "MIT"

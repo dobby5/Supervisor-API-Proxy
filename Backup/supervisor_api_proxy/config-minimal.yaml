@@ -1,8 +1,0 @@
-name: "Supervisor API Proxy"
-version: "1.2.0" 
-slug: supervisor_api_proxy
-description: "RESTful API proxy for Home Assistant Supervisor functions"
-arch:
-  - amd64
-  - armv7
-  - aarch64
