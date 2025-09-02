@@ -414,6 +414,12 @@ if __name__ == '__main__':
     if not SUPERVISOR_TOKEN:
         print("WARNING: SUPERVISOR_TOKEN not available!")
     
-    print(f"Starting Supervisor API Proxy on port 8080")
-    print(f"API endpoints available at: {API_PREFIX}/")
-    app.run(host='0.0.0.0', port=8080, debug=False)
+    print("🚀 Starting Supervisor API Proxy on port 8080...")
+    print(f"📡 API endpoints available at: {API_PREFIX}/")
+    print("🔄 Attempting to bind to 0.0.0.0:8080...")
+    
+    try:
+        app.run(host='0.0.0.0', port=8080, debug=False)
+    except Exception as e:
+        print(f"❌ Failed to start Flask application: {e}")
+        raise
