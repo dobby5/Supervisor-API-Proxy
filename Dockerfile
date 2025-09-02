@@ -1,32 +1,23 @@
-ARG BUILD_FROM
-FROM $BUILD_FROM
+# Use official Python Alpine image for better compatibility
+FROM python:3.11-alpine
 
-# Set shell
+# Set shell  
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 # Install system dependencies
-RUN \
-    apk add --no-cache --virtual .build-dependencies \
-        gcc \
-        musl-dev \
-        python3-dev \
-    && apk add --no-cache \
-        python3 \
-        py3-pip \
-        bash \
-        curl \
-        jq \
-    && pip3 install --no-cache-dir --upgrade pip
+RUN apk add --no-cache \
+    bash \
+    curl \
+    jq
 
 # Copy requirements and install Python dependencies
 COPY requirements.txt /tmp/requirements.txt
 RUN pip3 install --no-cache-dir -r /tmp/requirements.txt \
-    && apk del .build-dependencies \
-    && rm -rf /var/cache/apk/* /tmp/*
+    && rm -rf /tmp/*
 
 # Copy application files
 COPY app.py /app/
-COPY run.sh /
+COPY run-simple.sh /run.sh
 RUN chmod a+x /run.sh
 
 # Set working directory

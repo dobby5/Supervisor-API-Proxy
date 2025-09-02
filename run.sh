@@ -1,4 +1,4 @@
-#!/usr/bin/with-contenv bashio
+#!/usr/bin/env bashio
 # ==============================================================================
 # Home Assistant Supervisor API Proxy Add-on
 # Starts the Supervisor API Proxy service
