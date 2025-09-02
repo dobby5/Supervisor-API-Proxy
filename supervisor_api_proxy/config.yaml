@@ -2,27 +2,7 @@ name: "Supervisor API Proxy"
 version: "1.2.0"
 slug: supervisor_api_proxy
 description: "RESTful API proxy for Home Assistant Supervisor functions"
-url: "https://github.com/dobby5/Supervisor-API-Proxy"
 arch:
   - amd64
   - armv7
   - aarch64
-  - armhf
-  - i386
-startup: services
-boot: manual
-init: false
-ports:
-  8080/tcp: 8080
-ports_description:
-  8080/tcp: "API Proxy Port"
-map:
-  - config:rw
-hassio_api: true
-hassio_role: admin
-options:
-  log_level: info
-  cors_origins: []
-schema:
-  log_level: list(trace|debug|info|notice|warning|error|fatal)?
-  cors_origins: [str]?
