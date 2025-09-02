@@ -1,9 +1,6 @@
 # Use official Python Alpine image for better compatibility
 FROM python:3.11-alpine
 
-# Set shell  
-SHELL ["/bin/bash", "-o", "pipefail", "-c"]
-
 # Install system dependencies
 RUN apk add --no-cache \
     bash \
@@ -17,7 +14,7 @@ RUN pip3 install --no-cache-dir -r /tmp/requirements.txt \
 
 # Copy application files
 COPY app.py /app/
-COPY run-simple.sh /run.sh
+COPY run-python-only.sh /run.sh
 RUN chmod a+x /run.sh
 
 # Set working directory
