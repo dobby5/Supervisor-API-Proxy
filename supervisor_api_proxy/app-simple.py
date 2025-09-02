@@ -1,49 +1,47 @@
 #!/usr/bin/env python3
+import logging
 import sys
 import os
+from flask import Flask, jsonify
 
-print("🚀 Starting simple test app...")
-print(f"Python version: {sys.version}")
-print(f"Current working directory: {os.getcwd()}")
-print(f"Python path: {sys.path}")
+# Set up logging like the working example
+logging.basicConfig(level=logging.INFO)
+_LOGGER = logging.getLogger(__name__)
 
-try:
-    print("📦 Importing Flask...")
-    from flask import Flask, jsonify
-    print("✅ Flask imported successfully")
-    
-    print("🔧 Creating Flask app...")
-    app = Flask(__name__)
-    
-    @app.route("/")
-    def hello():
-        print("📡 / endpoint called")
-        return "Hello from Supervisor API Proxy!"
-    
-    @app.route("/health")
-    def health():
-        print("🏥 /health endpoint called")
-        return jsonify({"status": "healthy", "message": "Simple app running"})
-    
-    print("✅ Flask app configured")
-    print("🌐 Attempting to start on 0.0.0.0:8080...")
-    print("🔍 This should show Flask development server messages...")
-    
-    # Enable some Flask logging
-    import logging
-    logging.basicConfig(level=logging.INFO)
-    
-    app.run(host='0.0.0.0', port=8080, debug=True)
-    
-except ImportError as e:
-    print(f"❌ Import error: {e}")
-    import traceback
-    traceback.print_exc()
-    sys.exit(1)
-except Exception as e:
-    print(f"❌ Error starting app: {e}")
-    import traceback
-    traceback.print_exc()
-    sys.exit(1)
+# Create Flask app
+app = Flask(__name__)
 
-print("🔚 App has finished (this shouldn't print if Flask is running)")
+@app.route("/")
+def hello():
+    _LOGGER.info("Root endpoint called")
+    return "Hello from Supervisor API Proxy!"
+
+@app.route("/health")
+def health():
+    _LOGGER.info("Health endpoint called")
+    return jsonify({
+        "status": "healthy", 
+        "message": "Supervisor API Proxy running",
+        "port": 8080
+    })
+
+@app.route("/api/v1/health")
+def api_health():
+    _LOGGER.info("API health endpoint called")
+    return jsonify({
+        "status": "healthy",
+        "supervisor_token_available": bool(os.environ.get('SUPERVISOR_TOKEN')),
+        "supervisor_accessible": False  # Will implement later
+    })
+
+if __name__ == '__main__':
+    _LOGGER.info("🚀 Starting Supervisor API Proxy")
+    _LOGGER.info("Python version: %s", sys.version)
+    _LOGGER.info("Working directory: %s", os.getcwd())
+    
+    try:
+        _LOGGER.info("Starting Flask server on 0.0.0.0:8080")
+        app.run(host='0.0.0.0', port=8080, debug=False)
+    except Exception as e:
+        _LOGGER.error("Failed to start Flask application: %s", e)
+        sys.exit(1)

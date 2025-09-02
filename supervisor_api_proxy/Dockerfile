@@ -1,26 +1,25 @@
-# Use simple Alpine Linux instead of HA base image to avoid s6-overlay issues
-FROM alpine:3.18
+FROM python:3.12-slim-bookworm
 
-# Install Python and dependencies
-RUN apk add --no-cache python3 py3-pip bash
-
-# Set working directory  
 WORKDIR /app
 
-# Copy requirements and install
+# Install system dependencies (minimal set for our Flask app)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl wget jq dos2unix \
+ && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements and install Python packages
 COPY requirements.txt .
-RUN pip3 install --no-cache-dir -r requirements.txt
+RUN python -m pip install --no-cache-dir -r requirements.txt
 
-# Copy apps
-COPY app.py .
-COPY app-simple.py .
+# Copy application files
+COPY . .
 
-# Copy simple startup script (no bashio)
-COPY run-direct.sh /
-RUN chmod +x /run-direct.sh
+# Fix line endings and make run script executable
+RUN dos2unix run.sh \
+ && chmod +x run.sh
 
 # Expose port
 EXPOSE 8080
 
-# Direct startup without s6-overlay
-CMD ["/run-direct.sh"]
+# Use ENTRYPOINT with bash like the working example
+ENTRYPOINT ["/bin/bash", "/app/run.sh"]
