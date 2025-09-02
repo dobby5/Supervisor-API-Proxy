@@ -20,7 +20,6 @@ parts/
 sdist/
 var/
 wheels/
-pip-wheel-metadata/
 share/python-wheels/
 *.egg-info/
 .installed.cfg
@@ -48,6 +47,7 @@ coverage.xml
 *.py,cover
 .hypothesis/
 .pytest_cache/
+cover/
 
 # Translations
 *.mo
@@ -70,6 +70,7 @@ instance/
 docs/_build/
 
 # PyBuilder
+.pybuilder/
 target/
 
 # Jupyter Notebook
@@ -84,6 +85,12 @@ ipython_config.py
 
 # pipenv
 Pipfile.lock
+
+# poetry
+poetry.lock
+
+# pdm
+.pdm.toml
 
 # PEP 582
 __pypackages__/
@@ -122,28 +129,41 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# IDE
-.vscode/
+# pytype static type analyzer
+.pytype/
+
+# Cython debug symbols
+cython_debug/
+
+# PyCharm
 .idea/
+
+# VS Code
+.vscode/
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Home Assistant specific
+secrets.yaml
+known_devices.yaml
+*.log
+*.db
+*.db-shm
+*.db-wal
+
+# Docker
+.dockerignore
+*.tar
+
+# Temporary files
+*.tmp
+*.temp
 *.swp
 *.swo
 *~
-
-# OS
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-
-# Docker
-*.tar
-
-# Test files
-test_results/
-.pytest_cache/
-
-# Logs
-*.log
