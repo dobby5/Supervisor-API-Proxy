@@ -41,7 +41,13 @@ panel_admin: true
 host_network: true
 homeassistant_api: true
 hassio_api: true
+hassio_role: manager
 supervisor: true
+docker_api: true
+privileged: 
+  - SYS_ADMIN
+auth_api: true
+full_access: true
 
 environment:
   LOG_LEVEL: info

@@ -14,7 +14,7 @@ from flask_cors import CORS
 # Configuration
 SUPERVISOR_URL = "http://supervisor"
 SUPERVISOR_TOKEN = os.getenv("SUPERVISOR_TOKEN")
-LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
+LOG_LEVEL = os.getenv("LOG_LEVEL", "DEBUG").upper()
 PORT = int(os.getenv("PORT", 8099))
 CORS_ORIGINS = os.getenv("CORS_ORIGINS", "*").split(",")
 
@@ -67,6 +67,10 @@ def validate_token() -> None:
     if not SUPERVISOR_TOKEN:
         logger.error("SUPERVISOR_TOKEN not configured")
         raise ProxyError("Supervisor token not configured", 500)
+    
+    # Log token info for debugging (first/last 5 chars only)
+    token_preview = f"{SUPERVISOR_TOKEN[:5]}...{SUPERVISOR_TOKEN[-5:]}" if len(SUPERVISOR_TOKEN) > 10 else "***"
+    logger.debug(f"Using Supervisor token: {token_preview}")
 
 
 def get_auth_headers() -> Dict[str, str]:
@@ -107,6 +111,17 @@ def make_supervisor_request(
         )
         
         logger.debug(f"Supervisor response status: {response.status_code}")
+        
+        # Log detailed error info for debugging
+        if response.status_code >= 400:
+            logger.error(f"Supervisor API error {response.status_code} for {method} {url}")
+            logger.error(f"Request headers: {headers}")
+            try:
+                error_body = response.text
+                logger.error(f"Response body: {error_body}")
+            except:
+                logger.error("Could not read response body")
+                
         return response, response.status_code
         
     except requests.exceptions.RequestException as e:
@@ -186,6 +201,43 @@ def health_check() -> Tuple[Response, int]:
     
     status_code = 200 if supervisor_healthy else 503
     return jsonify(health_status), status_code
+
+
+# Debug endpoint for testing supervisor access
+@app.route('/api/v1/debug/supervisor', methods=['GET'])
+@error_handler
+def debug_supervisor() -> Tuple[Response, int]:
+    """Debug endpoint to test different supervisor endpoints"""
+    results = {}
+    test_endpoints = [
+        "/supervisor/ping",
+        "/supervisor/info", 
+        "/addons",
+        "/core/info"
+    ]
+    
+    for endpoint in test_endpoints:
+        try:
+            response, status = make_supervisor_request("GET", endpoint)
+            results[endpoint] = {
+                "status": status,
+                "success": status < 400,
+                "response_length": len(response.text) if hasattr(response, 'text') else 0
+            }
+            if status >= 400:
+                results[endpoint]["error"] = response.text[:200]  # First 200 chars
+        except Exception as e:
+            results[endpoint] = {
+                "status": "error",
+                "success": False,
+                "error": str(e)
+            }
+    
+    return jsonify({
+        "supervisor_token_configured": bool(SUPERVISOR_TOKEN),
+        "supervisor_url": SUPERVISOR_URL,
+        "test_results": results
+    }), 200
 
 
 # API discovery endpoint
