@@ -1,0 +1,4 @@
+name: "Supervisor API Proxy Add-ons"
+url: "https://github.com/dobby5/Supervisor-API-Proxy"
+maintainer: "dobby5"
+description: "Home Assistant add-ons for Supervisor API Proxy"
