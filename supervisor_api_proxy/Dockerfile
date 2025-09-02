@@ -1,25 +1,26 @@
 ARG BUILD_FROM
 FROM ${BUILD_FROM}
 
-# Install Python and dependencies
+# Install Python
 RUN apk add --no-cache python3 py3-pip
 
-# Set working directory
+# Set working directory  
 WORKDIR /app
 
-# Copy requirements
+# Copy requirements and install
 COPY requirements.txt .
-
-# Install Python packages
 RUN pip3 install --no-cache-dir -r requirements.txt
 
-# Copy application
+# Copy apps (both versions for testing)
 COPY app.py .
-COPY run.sh /
-RUN chmod a+x /run.sh
+COPY app-simple.py .
+
+# Copy and set run script
+COPY run-simple.sh /
+RUN chmod +x /run-simple.sh
 
 # Expose port
 EXPOSE 8080
 
-# Use standard CMD for Home Assistant add-ons
-CMD [ "/run.sh" ]
+# Start with simple version for testing
+CMD ["/run-simple.sh"]
