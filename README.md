@@ -122,13 +122,6 @@ python app.py
 - `LOG_LEVEL`: Optional. Logging level (default: info)
 - `CORS_ORIGINS`: Optional. CORS allowed origins
 
-### Add-on Configuration
-
-```yaml
-log_level: info
-cors_origins: []
-```
-
 ## Usage Examples
 
 ### Get all add-ons
@@ -201,14 +194,6 @@ docker run -d \
 - Limit network access to trusted clients only
 - Consider using authentication middleware for additional security
 
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
-
 ## License
 
 MIT License - see [LICENSE](LICENSE) file for details.
@@ -218,20 +203,3 @@ MIT License - see [LICENSE](LICENSE) file for details.
 - Create an issue for bug reports or feature requests
 - Check existing issues before creating new ones
 - Provide detailed information about your environment
-
-## Changelog
-
-### v1.2.0
-- Added full type annotations
-- Removed all comments for cleaner code
-- Improved error handling
-- Added comprehensive API documentation
-
-### v1.1.0
-- Added backup management endpoints
-- Improved logging and health checks
-- Added CORS support
-
-### v1.0.0
-- Initial release
-- Basic supervisor API proxy functionality
