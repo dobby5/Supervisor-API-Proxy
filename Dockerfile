@@ -46,12 +46,9 @@ LABEL \
     io.hass.arch="armhf|aarch64|i386|amd64|armv7" \
     io.hass.type="addon" \
     io.hass.version="1.0.0" \
-    maintainer="Home Assistant Add-on Developer" \
+    maintainer="Local Development" \
     org.opencontainers.image.title="Supervisor API Proxy" \
     org.opencontainers.image.description="A REST API proxy for Home Assistant Supervisor" \
-    org.opencontainers.image.vendor="Home Assistant Community Add-ons" \
-    org.opencontainers.image.authors="Add-on Developer" \
-    org.opencontainers.image.licenses="MIT" \
-    org.opencontainers.image.source="https://github.com/homeassistant/addons"
+    org.opencontainers.image.licenses="MIT"
 
 CMD ["/run.sh"]
