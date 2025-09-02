@@ -26,4 +26,4 @@ options:
 schema:
   log_level: "list(trace|debug|info|notice|warning|error|fatal)?"
   cors_origins: "[str]?"
-image: "ghcr.io/dobby5/supervisor-api-proxy/{arch}"
+# image: "ghcr.io/dobby5/supervisor-api-proxy/{arch}"
