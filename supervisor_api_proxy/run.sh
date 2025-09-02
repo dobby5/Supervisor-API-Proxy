@@ -18,5 +18,6 @@ fi
 bashio::log.info "🌐 Starting on port 8080"
 bashio::log.info "📡 API available at: http://homeassistant:8080/api/v1/"
 
-# Start the application with exec for proper signal handling
-exec python3 /app/app.py
+# Change to app directory and start the application
+cd /app
+exec python3 app.py

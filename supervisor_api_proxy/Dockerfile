@@ -15,12 +15,11 @@ RUN pip3 install --no-cache-dir -r requirements.txt
 
 # Copy application
 COPY app.py .
-COPY run.sh .
-
-# Create s6-overlay service directory and copy run script
-RUN mkdir -p /etc/services.d/supervisor-proxy
-COPY run.sh /etc/services.d/supervisor-proxy/run
-RUN chmod a+x /etc/services.d/supervisor-proxy/run
+COPY run.sh /
+RUN chmod a+x /run.sh
 
 # Expose port
 EXPOSE 8080
+
+# Use standard CMD for Home Assistant add-ons
+CMD [ "/run.sh" ]
