@@ -200,27 +200,73 @@ def homepage():
                          version="1.0.0",
                          timestamp=time.strftime("%d.%m.%Y %H:%M:%S"))
 
-# Catch-all route for debugging ingress path issues
+# Catch-all route to handle ingress path truncation
 @app.route('/api/v1', defaults={'path': ''})
 @app.route('/api/v1/<path:path>')
-def catch_all_api_v1(path):
-    """Catch all /api/v1 requests to debug path issues"""
+def handle_ingress_routing(path):
+    """Handle ingress path truncation by reconstructing the original path"""
     full_path = f"/api/v1/{path}" if path else "/api/v1"
-    logger.warning(f"Catch-all route hit: {full_path}")
-    logger.info(f"Original headers: {dict(request.headers)}")
     
-    # Check for ingress path info in headers
-    ingress_path = request.headers.get('X-Ingress-Path', '')
-    if ingress_path:
-        logger.info(f"Found ingress path header: {ingress_path}")
+    # If we have a path, use normal routing
+    if path:
+        logger.info(f"Processing path: {full_path}")
+        # Let Flask handle this normally - this should not be reached for existing routes
+        return jsonify({"error": "Route not found"}), 404
     
+    # For /api/v1 only - try to reconstruct from Referer header
+    referer = request.headers.get('Referer', '')
+    if referer and '/api/v1/' in referer:
+        # Extract the path after /api/v1/
+        try:
+            api_part = referer.split('/api/v1/', 1)[1]
+            reconstructed_path = f"/api/v1/{api_part}"
+            logger.info(f"Reconstructed path from referer: {reconstructed_path}")
+            
+            # Route to the appropriate endpoint
+            if api_part.startswith('store/addons'):
+                return handle_store_addons()
+            elif api_part.startswith('addons'):
+                return handle_addons()
+            elif api_part == 'health':
+                return health_check()
+            elif api_part == 'discovery':
+                return api_discovery()
+            
+        except Exception as e:
+            logger.error(f"Error reconstructing path: {e}")
+    
+    # Default response for /api/v1
     return jsonify({
-        "error": "Path debugging",
-        "received_path": full_path,
-        "method": request.method,
-        "headers": dict(request.headers),
-        "note": "This is a debug response - the ingress path mapping may be incorrect"
-    }), 404
+        "message": "Home Assistant Supervisor API Proxy",
+        "version": "1.0.0",
+        "note": "Ingress is truncating paths. Use specific endpoints.",
+        "available_endpoints": [
+            "/api/v1/health",
+            "/api/v1/discovery", 
+            "/api/v1/addons",
+            "/api/v1/store/addons"
+        ]
+    }), 200
+
+
+def handle_store_addons():
+    """Handle store addons request"""
+    try:
+        response, status_code = make_supervisor_request("GET", "/store/addons")
+        return jsonify(response.json()), status_code
+    except Exception as e:
+        logger.error(f"Error in store addons: {e}")
+        return jsonify({"error": "Failed to fetch store addons"}), 500
+
+
+def handle_addons():
+    """Handle addons request"""  
+    try:
+        response, status_code = make_supervisor_request("GET", "/addons")
+        return jsonify(response.json()), status_code
+    except Exception as e:
+        logger.error(f"Error in addons: {e}")
+        return jsonify({"error": "Failed to fetch addons"}), 500
 
 
 
