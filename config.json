@@ -1,0 +1,14 @@
+{
+  "name": "Supervisor Proxy (Addons)",
+  "version": "1.0.0",
+  "slug": "supervisor_proxy",
+  "description": "Exposes limited Supervisor endpoints (addons) through HA API",
+  "arch": ["amd64", "armv7", "aarch64"],
+  "startup": "services",
+  "boot": "auto",
+  "options": {},
+  "schema": {},
+  "ports": {
+    "9999/tcp": 9999
+  }
+}
