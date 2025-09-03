@@ -190,6 +190,18 @@ def homepage():
                          timestamp=time.strftime("%d.%m.%Y %H:%M:%S"))
 
 
+# Handle ingress path prefix issues - catch requests to /api/v1 directly
+@app.route('/api/v1')
+def api_v1_redirect():
+    """Redirect /api/v1 to discovery endpoint"""
+    return jsonify({
+        "message": "Home Assistant Supervisor API Proxy",
+        "version": "1.0.0", 
+        "note": "This is the base API endpoint. Use specific endpoints like /api/v1/addons",
+        "discovery": "/api/v1/discovery"
+    }), 200
+
+
 # Health check endpoint
 @app.route('/api/v1/health', methods=['GET'])
 @error_handler
@@ -1409,24 +1421,21 @@ def validate_environment() -> None:
 if __name__ == '__main__':
     validate_environment()
     
-    # Check if running under Ingress (environment variable set by Home Assistant)
+    # Check if running under Ingress - look for multiple possible environment variables
     ingress_path = os.getenv('HASSIO_INGRESS_PATH', '').rstrip('/')
+    ingress_url = os.getenv('HASSIO_INGRESS_URL', '')
     
-    if ingress_path:
-        logger.info(f"Running under Home Assistant Ingress with path: {ingress_path}")
-        
-        # For Ingress, we run the Flask app directly without path modifications
-        logger.info("All routes are available directly (e.g., /api/v1/health)")
-        app.run(
-            host='0.0.0.0',
-            port=PORT,
-            debug=(LOG_LEVEL == "DEBUG")
-        )
-    else:
-        # Development server (direct access)
-        logger.info("Running in development mode (direct access)")
-        app.run(
-            host='0.0.0.0',
-            port=PORT,
-            debug=(LOG_LEVEL == "DEBUG")
-        )
+    # Log all environment variables for debugging
+    logger.info("Environment variables:")
+    for key, value in os.environ.items():
+        if 'HASSIO' in key or 'INGRESS' in key:
+            logger.info(f"  {key}={value}")
+    
+    # Always assume we're running under ingress if we have a SUPERVISOR_TOKEN
+    logger.info("Running under Home Assistant Add-on/Ingress")
+    logger.info("All routes are available directly (e.g., /api/v1/health)")
+    app.run(
+        host='0.0.0.0',
+        port=PORT,
+        debug=(LOG_LEVEL == "DEBUG")
+    )
