@@ -190,17 +190,6 @@ def homepage():
                          timestamp=time.strftime("%d.%m.%Y %H:%M:%S"))
 
 
-# Handle ingress path prefix issues - catch requests to /api/v1 directly
-@app.route('/api/v1')
-def api_v1_redirect():
-    """Redirect /api/v1 to discovery endpoint"""
-    return jsonify({
-        "message": "Home Assistant Supervisor API Proxy",
-        "version": "1.0.0", 
-        "note": "This is the base API endpoint. Use specific endpoints like /api/v1/addons",
-        "discovery": "/api/v1/discovery"
-    }), 200
-
 
 # Health check endpoint
 @app.route('/api/v1/health', methods=['GET'])
