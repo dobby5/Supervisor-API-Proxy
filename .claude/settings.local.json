@@ -10,7 +10,9 @@
       "Bash(git pull:*)",
       "WebFetch(domain:developers.home-assistant.io)",
       "WebFetch(domain:github.com)",
-      "Bash(pip install:*)"
+      "Bash(pip install:*)",
+      "Bash(curl:*)",
+      "Bash(docker exec:*)"
     ],
     "deny": [],
     "ask": []
