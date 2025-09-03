@@ -8,7 +8,7 @@ from urllib.parse import urljoin
 from typing import Dict, Any, Optional, Tuple, List, Callable, Union
 
 import requests
-from flask import Flask, request, jsonify, Response, render_template
+from flask import Flask, request, jsonify, Response
 from flask_cors import CORS
 
 # Configuration
@@ -21,17 +21,6 @@ CORS_ORIGINS = os.getenv("CORS_ORIGINS", "*").split(",")
 # Flask app setup
 app = Flask(__name__)
 CORS(app, origins=CORS_ORIGINS)
-
-@app.before_request
-def log_request_info():
-    """Log detailed request information for debugging"""
-    logger.info(f"Request: {request.method} {request.path}")
-    logger.info(f"Full URL: {request.url}")
-    logger.info(f"Query String: {request.query_string.decode()}")
-    if logger.level <= logging.DEBUG:
-        logger.debug(f"Headers: {dict(request.headers)}")
-    if request.path == '/api/v1':
-        logger.warning("Received request to /api/v1 - this should be a longer path!")
 
 # Logging setup
 logging.basicConfig(
@@ -189,36 +178,6 @@ def proxy_request(
         
         return wrapper
     return decorator
-
-
-# Ingress homepage route
-@app.route('/')
-@app.route('/index')
-def homepage():
-    """Homepage for the ingress interface"""
-    return render_template('index.html', 
-                         version="1.0.0",
-                         timestamp=time.strftime("%d.%m.%Y %H:%M:%S"))
-
-# Simple API info endpoint - this is what currently works
-@app.route('/api/v1')
-def api_v1_base():
-    """Base API endpoint with working routes"""
-    return jsonify({
-        "message": "Home Assistant Supervisor API Proxy",
-        "version": "1.0.0",
-        "note": "Due to Home Assistant Ingress limitations, only direct routes work",
-        "working_routes": {
-            "health": f"{request.host_url}api/v1/health",
-            "discovery": f"{request.host_url}api/v1/discovery"
-        },
-        "broken_routes_due_to_ingress": [
-            "/api/v1/addons",
-            "/api/v1/store/addons" 
-        ],
-        "solution": "Use direct access without ingress or implement URL rewriting"
-    }), 200
-
 
 
 # Health check endpoint
@@ -1440,19 +1399,7 @@ def validate_environment() -> None:
 if __name__ == '__main__':
     validate_environment()
     
-    # Check if running under Ingress - look for multiple possible environment variables
-    ingress_path = os.getenv('HASSIO_INGRESS_PATH', '').rstrip('/')
-    ingress_url = os.getenv('HASSIO_INGRESS_URL', '')
-    
-    # Log all environment variables for debugging
-    logger.info("Environment variables:")
-    for key, value in os.environ.items():
-        if 'HASSIO' in key or 'INGRESS' in key:
-            logger.info(f"  {key}={value}")
-    
-    # Always assume we're running under ingress if we have a SUPERVISOR_TOKEN
-    logger.info("Running under Home Assistant Add-on/Ingress")
-    logger.info("All routes are available directly (e.g., /api/v1/health)")
+    # Development server
     app.run(
         host='0.0.0.0',
         port=PORT,
