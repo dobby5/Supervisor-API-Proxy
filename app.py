@@ -8,7 +8,7 @@ from urllib.parse import urljoin
 from typing import Dict, Any, Optional, Tuple, List, Callable, Union
 
 import requests
-from flask import Flask, request, jsonify, Response
+from flask import Flask, request, jsonify, Response, render_template
 from flask_cors import CORS
 
 # Configuration
@@ -178,6 +178,16 @@ def proxy_request(
         
         return wrapper
     return decorator
+
+
+# Ingress homepage route
+@app.route('/')
+@app.route('/index')
+def homepage():
+    """Homepage for the ingress interface"""
+    return render_template('index.html', 
+                         version="1.0.0",
+                         timestamp=time.strftime("%d.%m.%Y %H:%M:%S"))
 
 
 # Health check endpoint
@@ -1413,10 +1423,8 @@ if __name__ == '__main__':
             response = WerkzeugResponse('API is available at /api/v1/', status=200, mimetype='text/plain')
             return response(environ, start_response)
         
-        # Mount the Flask app at the ingress path
-        application = DispatcherMiddleware(simple_app, {
-            '/api/v1': app
-        })
+        # Mount the Flask app at the root for ingress
+        application = app
         
         from werkzeug.serving import run_simple
         run_simple(
