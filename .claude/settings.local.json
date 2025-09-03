@@ -12,7 +12,8 @@
       "WebFetch(domain:github.com)",
       "Bash(pip install:*)",
       "Bash(curl:*)",
-      "Bash(docker exec:*)"
+      "Bash(docker exec:*)",
+      "WebFetch(domain:0w6joatcbn5vo5vcpgelgcc4u6b9j2lx.ui.nabu.casa)"
     ],
     "deny": [],
     "ask": []

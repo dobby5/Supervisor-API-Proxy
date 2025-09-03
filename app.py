@@ -200,73 +200,24 @@ def homepage():
                          version="1.0.0",
                          timestamp=time.strftime("%d.%m.%Y %H:%M:%S"))
 
-# Catch-all route to handle ingress path truncation
-@app.route('/api/v1', defaults={'path': ''})
-@app.route('/api/v1/<path:path>')
-def handle_ingress_routing(path):
-    """Handle ingress path truncation by reconstructing the original path"""
-    full_path = f"/api/v1/{path}" if path else "/api/v1"
-    
-    # If we have a path, use normal routing
-    if path:
-        logger.info(f"Processing path: {full_path}")
-        # Let Flask handle this normally - this should not be reached for existing routes
-        return jsonify({"error": "Route not found"}), 404
-    
-    # For /api/v1 only - try to reconstruct from Referer header
-    referer = request.headers.get('Referer', '')
-    if referer and '/api/v1/' in referer:
-        # Extract the path after /api/v1/
-        try:
-            api_part = referer.split('/api/v1/', 1)[1]
-            reconstructed_path = f"/api/v1/{api_part}"
-            logger.info(f"Reconstructed path from referer: {reconstructed_path}")
-            
-            # Route to the appropriate endpoint
-            if api_part.startswith('store/addons'):
-                return handle_store_addons()
-            elif api_part.startswith('addons'):
-                return handle_addons()
-            elif api_part == 'health':
-                return health_check()
-            elif api_part == 'discovery':
-                return api_discovery()
-            
-        except Exception as e:
-            logger.error(f"Error reconstructing path: {e}")
-    
-    # Default response for /api/v1
+# Simple API info endpoint - this is what currently works
+@app.route('/api/v1')
+def api_v1_base():
+    """Base API endpoint with working routes"""
     return jsonify({
         "message": "Home Assistant Supervisor API Proxy",
         "version": "1.0.0",
-        "note": "Ingress is truncating paths. Use specific endpoints.",
-        "available_endpoints": [
-            "/api/v1/health",
-            "/api/v1/discovery", 
+        "note": "Due to Home Assistant Ingress limitations, only direct routes work",
+        "working_routes": {
+            "health": f"{request.host_url}api/v1/health",
+            "discovery": f"{request.host_url}api/v1/discovery"
+        },
+        "broken_routes_due_to_ingress": [
             "/api/v1/addons",
-            "/api/v1/store/addons"
-        ]
+            "/api/v1/store/addons" 
+        ],
+        "solution": "Use direct access without ingress or implement URL rewriting"
     }), 200
-
-
-def handle_store_addons():
-    """Handle store addons request"""
-    try:
-        response, status_code = make_supervisor_request("GET", "/store/addons")
-        return jsonify(response.json()), status_code
-    except Exception as e:
-        logger.error(f"Error in store addons: {e}")
-        return jsonify({"error": "Failed to fetch store addons"}), 500
-
-
-def handle_addons():
-    """Handle addons request"""  
-    try:
-        response, status_code = make_supervisor_request("GET", "/addons")
-        return jsonify(response.json()), status_code
-    except Exception as e:
-        logger.error(f"Error in addons: {e}")
-        return jsonify({"error": "Failed to fetch addons"}), 500
 
 
 
