@@ -1415,24 +1415,12 @@ if __name__ == '__main__':
     if ingress_path:
         logger.info(f"Running under Home Assistant Ingress with path: {ingress_path}")
         
-        # For Ingress, we need to handle the base path
-        from werkzeug.middleware.dispatcher import DispatcherMiddleware
-        from werkzeug.wrappers import Response as WerkzeugResponse
-        
-        def simple_app(environ, start_response):
-            response = WerkzeugResponse('API is available at /api/v1/', status=200, mimetype='text/plain')
-            return response(environ, start_response)
-        
-        # Mount the Flask app at the root for ingress
-        application = app
-        
-        from werkzeug.serving import run_simple
-        run_simple(
-            hostname='0.0.0.0',
+        # For Ingress, we run the Flask app directly without path modifications
+        logger.info("All routes are available directly (e.g., /api/v1/health)")
+        app.run(
+            host='0.0.0.0',
             port=PORT,
-            application=application,
-            use_reloader=False,
-            use_debugger=(LOG_LEVEL == "DEBUG")
+            debug=(LOG_LEVEL == "DEBUG")
         )
     else:
         # Development server (direct access)
