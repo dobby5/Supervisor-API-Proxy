@@ -22,6 +22,17 @@ CORS_ORIGINS = os.getenv("CORS_ORIGINS", "*").split(",")
 app = Flask(__name__)
 CORS(app, origins=CORS_ORIGINS)
 
+@app.before_request
+def log_request_info():
+    """Log detailed request information for debugging"""
+    logger.info(f"Request: {request.method} {request.path}")
+    logger.info(f"Full URL: {request.url}")
+    logger.info(f"Query String: {request.query_string.decode()}")
+    if logger.level <= logging.DEBUG:
+        logger.debug(f"Headers: {dict(request.headers)}")
+    if request.path == '/api/v1':
+        logger.warning("Received request to /api/v1 - this should be a longer path!")
+
 # Logging setup
 logging.basicConfig(
     level=getattr(logging, LOG_LEVEL),
@@ -188,6 +199,28 @@ def homepage():
     return render_template('index.html', 
                          version="1.0.0",
                          timestamp=time.strftime("%d.%m.%Y %H:%M:%S"))
+
+# Catch-all route for debugging ingress path issues
+@app.route('/api/v1', defaults={'path': ''})
+@app.route('/api/v1/<path:path>')
+def catch_all_api_v1(path):
+    """Catch all /api/v1 requests to debug path issues"""
+    full_path = f"/api/v1/{path}" if path else "/api/v1"
+    logger.warning(f"Catch-all route hit: {full_path}")
+    logger.info(f"Original headers: {dict(request.headers)}")
+    
+    # Check for ingress path info in headers
+    ingress_path = request.headers.get('X-Ingress-Path', '')
+    if ingress_path:
+        logger.info(f"Found ingress path header: {ingress_path}")
+    
+    return jsonify({
+        "error": "Path debugging",
+        "received_path": full_path,
+        "method": request.method,
+        "headers": dict(request.headers),
+        "note": "This is a debug response - the ingress path mapping may be incorrect"
+    }), 404
 
 
 
