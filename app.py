@@ -1399,9 +1399,38 @@ def validate_environment() -> None:
 if __name__ == '__main__':
     validate_environment()
     
-    # Development server
-    app.run(
-        host='0.0.0.0',
-        port=PORT,
-        debug=(LOG_LEVEL == "DEBUG")
-    )
+    # Check if running under Ingress (environment variable set by Home Assistant)
+    ingress_path = os.getenv('HASSIO_INGRESS_PATH', '').rstrip('/')
+    
+    if ingress_path:
+        logger.info(f"Running under Home Assistant Ingress with path: {ingress_path}")
+        
+        # For Ingress, we need to handle the base path
+        from werkzeug.middleware.dispatcher import DispatcherMiddleware
+        from werkzeug.wrappers import Response as WerkzeugResponse
+        
+        def simple_app(environ, start_response):
+            response = WerkzeugResponse('API is available at /api/v1/', status=200, mimetype='text/plain')
+            return response(environ, start_response)
+        
+        # Mount the Flask app at the ingress path
+        application = DispatcherMiddleware(simple_app, {
+            '/api/v1': app
+        })
+        
+        from werkzeug.serving import run_simple
+        run_simple(
+            hostname='0.0.0.0',
+            port=PORT,
+            application=application,
+            use_reloader=False,
+            use_debugger=(LOG_LEVEL == "DEBUG")
+        )
+    else:
+        # Development server (direct access)
+        logger.info("Running in development mode (direct access)")
+        app.run(
+            host='0.0.0.0',
+            port=PORT,
+            debug=(LOG_LEVEL == "DEBUG")
+        )

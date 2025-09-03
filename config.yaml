@@ -11,10 +11,9 @@ arch:
 
 startup: application
 boot: manual
-ports:
-  8099/tcp: 8099
-ports_description:
-  8099/tcp: "API proxy web server"
+ingress: true
+ingress_port: 8099
+ingress_entry: "/api/v1"
 
 options:
   log_level: info
@@ -38,7 +37,6 @@ panel_icon: mdi:api
 panel_title: "Supervisor API Proxy"
 panel_admin: true
 
-host_network: true
 homeassistant_api: true
 hassio_api: true
 hassio_role: manager
