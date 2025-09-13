@@ -337,7 +337,7 @@ def addons_reload() -> None:
 
 
 @app.route('/api/v1/addons/<slug>', methods=['GET', 'POST'])
-@proxy_request('/addons/{slug}')
+@proxy_request('/addons/{slug}/info')
 def addon_info(slug: str) -> None:
     """Get or update add-on information"""
     pass
